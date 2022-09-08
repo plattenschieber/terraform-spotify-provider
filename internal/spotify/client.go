@@ -71,7 +71,7 @@ func (c *Client) CreatePlayList(name, description string, public bool) (string, 
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		d, _ = ioutil.ReadAll(resp.Body)
 		return "", fmt.Errorf("got status code %d, expected 200. Here is the response: %s", resp.StatusCode, string(d))
 	}
