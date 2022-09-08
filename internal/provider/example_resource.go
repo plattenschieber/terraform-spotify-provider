@@ -56,7 +56,7 @@ type exampleResourceData struct {
 }
 
 type exampleResource struct {
-	provider scaffoldingProvider
+	provider spotifyProvider
 }
 
 func (r exampleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

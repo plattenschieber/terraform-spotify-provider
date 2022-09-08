@@ -11,11 +11,11 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ provider.Provider = &scaffoldingProvider{}
+var _ provider.Provider = &spotifyProvider{}
 
 // provider satisfies the tfsdk.Provider interface and usually is included
 // with all Resource and DataSource implementations.
-type scaffoldingProvider struct {
+type spotifyProvider struct {
 	// client can contain the upstream provider SDK or HTTP client used to
 	// communicate with the upstream service. Resource and DataSource
 	// implementations can then make calls using this client.
@@ -39,7 +39,7 @@ type providerData struct {
 	Example types.String `tfsdk:"example"`
 }
 
-func (p *scaffoldingProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+func (p *spotifyProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	var data providerData
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -57,19 +57,19 @@ func (p *scaffoldingProvider) Configure(ctx context.Context, req provider.Config
 	p.configured = true
 }
 
-func (p *scaffoldingProvider) GetResources(ctx context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
+func (p *spotifyProvider) GetResources(ctx context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
 	return map[string]provider.ResourceType{
 		"spotify_example": exampleResourceType{},
 	}, nil
 }
 
-func (p *scaffoldingProvider) GetDataSources(ctx context.Context) (map[string]provider.DataSourceType, diag.Diagnostics) {
+func (p *spotifyProvider) GetDataSources(ctx context.Context) (map[string]provider.DataSourceType, diag.Diagnostics) {
 	return map[string]provider.DataSourceType{
-		"spotify_example": exampleDataSourceType{},
+		"spotify_example": spotifyTrackDataSourceType{},
 	}, nil
 }
 
-func (p *scaffoldingProvider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (p *spotifyProvider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
 			"example": {
@@ -83,7 +83,7 @@ func (p *scaffoldingProvider) GetSchema(ctx context.Context) (tfsdk.Schema, diag
 
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
-		return &scaffoldingProvider{
+		return &spotifyProvider{
 			version: version,
 		}
 	}
@@ -94,17 +94,17 @@ func New(version string) func() provider.Provider {
 // this helper can be skipped and the provider type can be directly type
 // asserted (e.g. provider: in.(*scaffoldingProvider)), however using this can prevent
 // potential panics.
-func convertProviderType(in provider.Provider) (scaffoldingProvider, diag.Diagnostics) {
+func convertProviderType(in provider.Provider) (spotifyProvider, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	p, ok := in.(*scaffoldingProvider)
+	p, ok := in.(*spotifyProvider)
 
 	if !ok {
 		diags.AddError(
 			"Unexpected Provider Instance Type",
 			fmt.Sprintf("While creating the data source or resource, an unexpected provider type (%T) was received. This is always a bug in the provider code and should be reported to the provider developers.", p),
 		)
-		return scaffoldingProvider{}, diags
+		return spotifyProvider{}, diags
 	}
 
 	if p == nil {
@@ -112,7 +112,7 @@ func convertProviderType(in provider.Provider) (scaffoldingProvider, diag.Diagno
 			"Unexpected Provider Instance Type",
 			"While creating the data source or resource, an unexpected empty provider instance was received. This is always a bug in the provider code and should be reported to the provider developers.",
 		)
-		return scaffoldingProvider{}, diags
+		return spotifyProvider{}, diags
 	}
 
 	return *p, diags
