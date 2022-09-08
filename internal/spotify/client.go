@@ -85,20 +85,27 @@ func (c *Client) CreatePlayList(name, description string, public bool) (string, 
 	return output["id"].(string), nil
 }
 
-// https://api.spotify.com/v1//playlists/{playlist_id}/followers
+// https://api.spotify.com/v1/playlists/{playlist_id}/followers
 
 func (c *Client) UnfollowPlayList(playlistId string) (string, error) {
 
-	resp, err := http.DefaultClient.Post(fmt.Sprintf("%splaylists/%s/followers", BASE_URL, playlistId), "application/json", bytes.NewReader(d))
+	url := fmt.Sprintf("%splaylists/%s/followers", BASE_URL, playlistId)
+	request, err := http.NewRequest(http.MethodDelete, url, nil)
+	if err != nil {
+		return "", fmt.Errorf("an error happend during UnfollowPlayList(): %s", err.Error())
+	}
 
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token))
+	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", fmt.Errorf("an error happend during UnfollowPlayList(): %s", err.Error())
 	}
 
 	defer resp.Body.Close()
 
-	if resp != nil {
-		return "", fmt.Errorf("got status code %d, expected 200", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		d, _ := ioutil.ReadAll(resp.Body)
+		return "", fmt.Errorf("got status code %d, expected 200. Here is the response: %s", resp.StatusCode, string(d))
 	}
 
 	return ("Successfully unfollowed " + playlistId), nil
@@ -151,7 +158,7 @@ func (c *Client) AddTracksToPlayList(playlistId string, tracks []string) (string
 func (c *Client) RemoveTracksFromPlayList(playlistId string, uris []string) (string, error) {
 
 	var tracks []Track
-	for i, s := range uris {
+	for _, s := range uris {
 		t := Track{
 			URI: s,
 		}
