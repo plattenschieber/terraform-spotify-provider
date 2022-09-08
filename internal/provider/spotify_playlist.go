@@ -42,12 +42,12 @@ func (t spotifyPlaylistResourceType) GetSchema(ctx context.Context) (tfsdk.Schem
 			"description": {
 				Required:            true,
 				MarkdownDescription: "Description of the playlist",
-				Type: types.StringType,
+				Type:                types.StringType,
 			},
 			"public": {
 				Required:            true,
 				MarkdownDescription: "Description of the playlist",
-				Type: types.BoolType,
+				Type:                types.BoolType,
 			},
 		},
 	}, nil
@@ -62,10 +62,10 @@ func (t spotifyPlaylistResourceType) NewResource(ctx context.Context, in provide
 }
 
 type spotifyPlaylistResourceData struct {
-	Name types.String `tfsdk:"name"`
-	Id   types.String `tfsdk:"id"`
-	Descriptiopn   types.String `tfsdk:"description"`
-	Public   types.Bool `tfsdk:"public"`
+	Name         types.String `tfsdk:"name"`
+	Id           types.String `tfsdk:"id"`
+	Descriptiopn types.String `tfsdk:"description"`
+	Public       types.Bool   `tfsdk:"public"`
 }
 
 type spotifyPlaylistResource struct {
@@ -158,11 +158,15 @@ func (r spotifyPlaylistResource) Delete(ctx context.Context, req resource.Delete
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	// playlist, err := r.provider.client.DeletePlaylist(data)
-	// if err != nil {
-	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
-	// 	return
-	// }
+	_, err := r.provider.client.UnfollowPlayList(data.Id.Value)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
+		return
+	}
+
+	// Write logs using the tflog package
+	// Documentation: https://terraform.io/plugin/log
+	tflog.Trace(ctx, "deleted a playlist")
 }
 
 func (r spotifyPlaylistResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
