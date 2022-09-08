@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -46,8 +47,14 @@ func (c *Client) CreatePlayList(name, description string, public bool) (string, 
 		return "", fmt.Errorf("an error happend during marshalling data: %s", err.Error())
 	}
 
-	resp, err := http.DefaultClient.Post(fmt.Sprintf("%susers/%s/playlists", BASE_URL, userId), "application/json", bytes.NewReader(d))
+	url := fmt.Sprintf("%susers/%s/playlists", BASE_URL, userId)
+	request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(d))
+	if err != nil {
+		return "", fmt.Errorf("an error happend during CreatePlayList(): %s", err.Error())
+	}
 
+	request.Header.Add("Authorization",  fmt.Sprintf("Bearer %s", c.token))
+	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", fmt.Errorf("an error happend during CreatePlayList(): %s", err.Error())
 	}
@@ -55,7 +62,8 @@ func (c *Client) CreatePlayList(name, description string, public bool) (string, 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("got status code %d, expected 200", resp.StatusCode)
+		d, _ = ioutil.ReadAll(resp.Body)
+		return "", fmt.Errorf("got status code %d, expected 200. Here is the response: %s", resp.StatusCode, string(d))
 	}
 
 	output := map[string]interface{}{}
