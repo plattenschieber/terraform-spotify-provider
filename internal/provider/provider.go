@@ -3,11 +3,13 @@ package provider
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-provider-scaffolding-framework/internal/spotify"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
@@ -22,6 +24,7 @@ type spotifyProvider struct {
 	//
 	// TODO: If appropriate, implement upstream provider SDK or HTTP client.
 	// client vendorsdk.ExampleClient
+	client *spotify.Client
 
 	// configured is set to true at the end of the Configure method.
 	// This can be used in Resource and DataSource implementations to verify
@@ -40,26 +43,27 @@ type providerData struct {
 }
 
 func (p *spotifyProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data providerData
-	diags := req.Config.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+
+	spotifyToken := os.Getenv("SPOTIFY_TOKEN")
+	if spotifyToken == "" {
+		resp.Diagnostics.AddError("Spotify token is missing", "The spotify token is blank, please ensure the env `SPOTIFY_TOKEN` is set correctly.")
+	}
+	userId := os.Getenv("SPOTIFY_USER_ID")
+	if userId == "" {
+		resp.Diagnostics.AddError("Spotify user id missing", "The spotify user id is blank, please ensure the env `SPOTIFY_USER_ID` is set correctly.")
+	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Example.Null { /* ... */ }
-
-	// If the upstream provider SDK or HTTP client requires configuration, such
-	// as authentication or logging, this is a great opportunity to do so.
-
+	p.client = spotify.NewClient(spotifyToken, userId)
 	p.configured = true
 }
 
 func (p *spotifyProvider) GetResources(ctx context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
 	return map[string]provider.ResourceType{
-		"spotify_example": exampleResourceType{},
+		"spotify_playlist": spotifyPlaylistResourceType{},
 	}, nil
 }
 

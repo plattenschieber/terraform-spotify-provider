@@ -39,6 +39,16 @@ func (t spotifyPlaylistResourceType) GetSchema(ctx context.Context) (tfsdk.Schem
 				},
 				Type: types.StringType,
 			},
+			"description": {
+				Required:            true,
+				MarkdownDescription: "Description of the playlist",
+				Type: types.StringType,
+			},
+			"public": {
+				Required:            true,
+				MarkdownDescription: "Description of the playlist",
+				Type: types.BoolType,
+			},
 		},
 	}, nil
 }
@@ -54,6 +64,8 @@ func (t spotifyPlaylistResourceType) NewResource(ctx context.Context, in provide
 type spotifyPlaylistResourceData struct {
 	Name types.String `tfsdk:"name"`
 	Id   types.String `tfsdk:"id"`
+	Descriptiopn   types.String `tfsdk:"description"`
+	Public   types.Bool `tfsdk:"public"`
 }
 
 type spotifyPlaylistResource struct {
@@ -72,7 +84,7 @@ func (r spotifyPlaylistResource) Create(ctx context.Context, req resource.Create
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	playlist, err := r.provider.client.CreatePlaylist(data.Name.Value)
+	id, err := r.provider.client.CreatePlayList(data.Name.Value, data.Descriptiopn.Value, data.Public.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create example, got error: %s", err))
 		return
@@ -80,7 +92,7 @@ func (r spotifyPlaylistResource) Create(ctx context.Context, req resource.Create
 
 	// For the purposes of this example code, hardcoding a response value to
 	// save into the Terraform state.
-	data.Id = types.String{Value: playlist.id}
+	data.Id = types.String{Value: id}
 
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
@@ -102,11 +114,11 @@ func (r spotifyPlaylistResource) Read(ctx context.Context, req resource.ReadRequ
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	playlist, err := r.provider.client.ReadPlaylist(data)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read example, got error: %s", err))
-		return
-	}
+	// playlist, err := r.provider.client.ReadPlaylist(data)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read example, got error: %s", err))
+	// 	return
+	// }
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -124,11 +136,11 @@ func (r spotifyPlaylistResource) Update(ctx context.Context, req resource.Update
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	playlist, err := r.provider.client.UpdatePlaylist(data)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update example, got error: %s", err))
-		return
-	}
+	// playlist, err := r.provider.client.UpdatePlaylist(data)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update example, got error: %s", err))
+	// 	return
+	// }
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -146,11 +158,11 @@ func (r spotifyPlaylistResource) Delete(ctx context.Context, req resource.Delete
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	playlist, err := r.provider.client.DeletePlaylist(data)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
-		return
-	}
+	// playlist, err := r.provider.client.DeletePlaylist(data)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
+	// 	return
+	// }
 }
 
 func (r spotifyPlaylistResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
