@@ -179,3 +179,13 @@ func (c *Client) RemoveTracksFromPlayList(playlistId string, uris []string) (str
 
 	return output["snapshot_id"].(string), nil
 }
+
+//TODO:: Get Track
+// https://api.spotify.com/v1/search?q=Pink%20Venom%20Blackpink&type=track&limit=5
+// q = Keywords
+// type = track
+// limit = 5
+// response
+// artists[0][name]
+// name
+// uri
