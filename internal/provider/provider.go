@@ -59,13 +59,13 @@ func (p *scaffoldingProvider) Configure(ctx context.Context, req provider.Config
 
 func (p *scaffoldingProvider) GetResources(ctx context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
 	return map[string]provider.ResourceType{
-		"scaffolding_example": exampleResourceType{},
+		"spotify_example": exampleResourceType{},
 	}, nil
 }
 
 func (p *scaffoldingProvider) GetDataSources(ctx context.Context) (map[string]provider.DataSourceType, diag.Diagnostics) {
 	return map[string]provider.DataSourceType{
-		"scaffolding_example": exampleDataSourceType{},
+		"spotify_example": exampleDataSourceType{},
 	}, nil
 }
 
