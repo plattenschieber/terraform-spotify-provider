@@ -1,3 +1,11 @@
-resource "scaffolding_example" "example" {
-  configurable_attribute = "some-value"
+resource "spotify_playlist" "example" {
+  name = "some-name"
+  track {
+    title = "some-title"
+    album = "some-album" 
+  }
+  track {
+    title = "another-title"
+    album = "another-album" 
+  }
 }

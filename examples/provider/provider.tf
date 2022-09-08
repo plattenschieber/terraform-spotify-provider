@@ -1,3 +1,3 @@
-provider "scaffolding" {
+provider "spotify" {
   # example configuration here
 }

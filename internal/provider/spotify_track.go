@@ -12,24 +12,29 @@ import (
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ provider.DataSourceType = exampleDataSourceType{}
-var _ datasource.DataSource = exampleDataSource{}
+var _ provider.DataSourceType = spotifyTrackDataSourceType{}
+var _ datasource.DataSource = spotifyTrackDataSource{}
 
-type exampleDataSourceType struct{}
+type spotifyTrackDataSourceType struct{}
 
-func (t exampleDataSourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (t spotifyTrackDataSourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "Example data source",
+		MarkdownDescription: "Spotify track data source",
 
 		Attributes: map[string]tfsdk.Attribute{
-			"configurable_attribute": {
-				MarkdownDescription: "Example configurable attribute",
-				Optional:            true,
+			"title": {
+				MarkdownDescription: "Track title",
+				Required:            true,
 				Type:                types.StringType,
 			},
-			"id": {
-				MarkdownDescription: "Example identifier",
+			"artist": {
+				MarkdownDescription: "Track artist",
+				Required:            true,
+				Type:                types.StringType,
+			},
+			"uri": {
+				MarkdownDescription: "Track URI",
 				Type:                types.StringType,
 				Computed:            true,
 			},
@@ -37,25 +42,25 @@ func (t exampleDataSourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 	}, nil
 }
 
-func (t exampleDataSourceType) NewDataSource(ctx context.Context, in provider.Provider) (datasource.DataSource, diag.Diagnostics) {
+func (t spotifyTrackDataSourceType) NewDataSource(ctx context.Context, in provider.Provider) (datasource.DataSource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
-	return exampleDataSource{
+	return spotifyTrackDataSource{
 		provider: provider,
 	}, diags
 }
 
-type exampleDataSourceData struct {
+type spotifyTrackDataSourceData struct {
 	ConfigurableAttribute types.String `tfsdk:"configurable_attribute"`
 	Id                    types.String `tfsdk:"id"`
 }
 
-type exampleDataSource struct {
-	provider scaffoldingProvider
+type spotifyTrackDataSource struct {
+	provider spotifyProvider
 }
 
-func (d exampleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data exampleDataSourceData
+func (d spotifyTrackDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data spotifyTrackDataSourceData
 
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
